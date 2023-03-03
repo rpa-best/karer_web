@@ -31,6 +31,7 @@ class Organization(models.Model):
     inn = models.CharField("ИНН", max_length=20)
     bik = models.CharField("ВИК", max_length=255)
     address = models.CharField("Адрес", max_length=255)
+    phone = models.CharField("Телефон", max_length=20)
 
     class Meta:
         verbose_name = "Организация"
@@ -39,8 +40,20 @@ class Organization(models.Model):
     def __str__(self) -> str:
         return self.name
 
+class Client(models.Model):
+    name = models.CharField("ФИО", max_length=255)
+    passport = models.CharField("Паспорт", max_length=20)
+    phone = models.CharField("Телефон", max_length=20)
 
-class Order(models.Model):
+    class Meta:
+        verbose_name = "Физическое лицо"
+        verbose_name_plural = "Физическое лицо"
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class BaseOrder(models.Model):
     STATUS = (
         ('created', 'Создано'),
         ('accepted', 'Принята'),
@@ -51,20 +64,34 @@ class Order(models.Model):
     )
     id = models.UUIDField(primary_key=True)
     name = models.CharField(max_length=255, verbose_name='Наименование груза')
-    organization = models.ForeignKey(Organization, models.PROTECT, verbose_name='Организация')
     status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
 
     class Meta:
-        verbose_name = "Заказ"
-        verbose_name_plural = "Заказы"
+        abstract = True
 
     def __str__(self) -> str:
         return self.name
 
 
-class Invite(models.Model):
+class OrgOrder(BaseOrder):
+    organization = models.ForeignKey(Organization, models.PROTECT, verbose_name='Организация')
+
+    class Meta:
+        verbose_name = "Заказ юр. лицо"
+        verbose_name_plural = "Заказы юр. лицо"
+
+
+class ClientOrder(BaseOrder):
+    client = models.ForeignKey(Client, models.PROTECT, verbose_name='Физ. лицо')
+
+    class Meta:
+        verbose_name = "Заказ физ. лицо"
+        verbose_name_plural = "Заказы физ. лицо"
+
+
+class BaseInvite(models.Model):
     STATUS = (
         ('created', 'Создано'),
         ('accepted', 'Принята'),
@@ -77,7 +104,6 @@ class Invite(models.Model):
     name = models.CharField(max_length=255, verbose_name='Наименование груза')
     car = models.ForeignKey(Car, models.PROTECT, verbose_name='Номер машины')
     driver = models.ForeignKey(Driver, models.PROTECT, verbose_name='Водитель')
-    order = models.ForeignKey(Order, models.CASCADE, verbose_name='Заказ')
     weight = models.FloatField(verbose_name='Потребность (кг)')
     status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
@@ -85,9 +111,25 @@ class Invite(models.Model):
     position = models.PositiveIntegerField(null=True, verbose_name='Позиция')
     
     class Meta:
-        ordering = ['position']
-        verbose_name = "Заявка"
-        verbose_name_plural = "Заявкы"
+        abstract = True
 
     def __str__(self) -> str:
         return self.name
+
+
+class ClientInvite(BaseInvite):
+    order = models.ForeignKey(ClientOrder, models.CASCADE, verbose_name='Заказ')
+
+    class Meta:
+        ordering = ['position']
+        verbose_name = "Заявка физ. лицо"
+        verbose_name_plural = "Заявкы физ. лицо"
+
+
+class OrgInvite(BaseInvite):
+    order = models.ForeignKey(OrgOrder, models.CASCADE, verbose_name='Заказ')
+
+    class Meta:
+        ordering = ['position']
+        verbose_name = "Заявка юр. лицо"
+        verbose_name_plural = "Заявкы юр. лицо"
