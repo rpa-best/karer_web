@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # 'material.admin',
     # 'grappelli',
     # 'jazzmin',
+    'karer_web',
     'jet.dashboard',
     'jet',
     'django.contrib.admin',

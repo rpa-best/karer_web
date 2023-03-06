@@ -1,56 +1,5 @@
+import uuid
 from django.db import models
-
-
-class Car(models.Model):
-    number = models.CharField(max_length=100, verbose_name='Номер')
-    model = models.CharField(max_length=100, verbose_name='Модель')
-    vin_number = models.CharField(max_length=100, verbose_name='Вин')
-
-    class Meta:
-        verbose_name = "Машина"
-        verbose_name_plural = "Машины"
-
-    def __str__(self) -> str:
-        return self.number
-
-
-class Driver(models.Model):
-    name = models.CharField(max_length=255, verbose_name='ФИО')
-    phone = models.CharField(max_length=255, verbose_name='Номер телефона')
-
-    class Meta:
-        verbose_name = "Водитель"
-        verbose_name_plural = "Водители"
-
-    def __str__(self) -> str:
-        return self.name
- 
-
-class Organization(models.Model):
-    name = models.CharField("Название", max_length=255)
-    inn = models.CharField("ИНН", max_length=20)
-    bik = models.CharField("ВИК", max_length=255)
-    address = models.CharField("Адрес", max_length=255)
-    phone = models.CharField("Телефон", max_length=20)
-
-    class Meta:
-        verbose_name = "Организация"
-        verbose_name_plural = "Организации"
-
-    def __str__(self) -> str:
-        return self.name
-
-class Client(models.Model):
-    name = models.CharField("ФИО", max_length=255)
-    passport = models.CharField("Паспорт", max_length=20)
-    phone = models.CharField("Телефон", max_length=20)
-
-    class Meta:
-        verbose_name = "Физическое лицо"
-        verbose_name_plural = "Физическое лицо"
-
-    def __str__(self) -> str:
-        return self.name
 
 
 class BaseOrder(models.Model):
@@ -62,8 +11,9 @@ class BaseOrder(models.Model):
         ('finished', 'Успешно'),
         ('canceled', 'Отклонена')
     )
-    id = models.UUIDField(primary_key=True)
-    name = models.CharField(max_length=255, verbose_name='Наименование груза')
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
+    karer = models.ForeignKey('karer_web.Karer', models.PROTECT)
+    desc = models.TextField(verbose_name='Описание')
     status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
@@ -72,11 +22,11 @@ class BaseOrder(models.Model):
         abstract = True
 
     def __str__(self) -> str:
-        return self.name
+        return self.id
 
 
 class OrgOrder(BaseOrder):
-    organization = models.ForeignKey(Organization, models.PROTECT, verbose_name='Организация')
+    organization = models.ForeignKey("karer_web.Organization", models.PROTECT, verbose_name='Организация')
 
     class Meta:
         verbose_name = "Заказ юр. лицо"
@@ -84,7 +34,7 @@ class OrgOrder(BaseOrder):
 
 
 class ClientOrder(BaseOrder):
-    client = models.ForeignKey(Client, models.PROTECT, verbose_name='Физ. лицо')
+    client = models.ForeignKey("karer_web.Client", models.PROTECT, verbose_name='Физ. лицо')
 
     class Meta:
         verbose_name = "Заказ физ. лицо"
@@ -100,10 +50,10 @@ class BaseInvite(models.Model):
         ('finished', 'Успешно'),
         ('canceled', 'Отклонена')
     )
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     name = models.CharField(max_length=255, verbose_name='Наименование груза')
-    car = models.ForeignKey(Car, models.PROTECT, verbose_name='Номер машины')
-    driver = models.ForeignKey(Driver, models.PROTECT, verbose_name='Водитель')
+    car = models.ForeignKey("karer_web.Car", models.PROTECT, verbose_name='Номер машины')
+    driver = models.ForeignKey("karer_web.Driver", models.PROTECT, verbose_name='Водитель')
     weight = models.FloatField(verbose_name='Потребность (кг)')
     status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')

@@ -1,9 +1,9 @@
 from django.contrib import admin
-from adminsortable2.admin import SortableTabularInline
+from adminsortable2.admin import SortableStackedInline
 from .models import OrgInvite, ClientInvite
 
 
-class OrgInviteTabular(SortableTabularInline):
+class OrgInviteTabular(SortableStackedInline):
     model = OrgInvite
     sortable_field_name = 'position'
     extra = 0
@@ -11,7 +11,7 @@ class OrgInviteTabular(SortableTabularInline):
     readonly_fields = ['status']
 
 
-class ClientInviteTabular(SortableTabularInline):
+class ClientInviteTabular(SortableStackedInline):
     model = ClientInvite
     sortable_field_name = 'position'
     extra = 0
