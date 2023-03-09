@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . import models
+from . import models, forms
 
 
 admin.site.site_title = 'Карьер'
@@ -23,7 +23,17 @@ class DriverAdmin(admin.ModelAdmin):
 
 @admin.register(models.Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['inn', 'name']
+    list_display_links = ['name']
+
+    def get_readonly_fields(self, request, obj=None):
+        return ['name', 'address', 'ogrn', 'kpp'] if obj else []
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        if not obj:
+            return forms.OrganizationCreateForm
+        return super().get_form(request, obj, change, **kwargs)
+
 
 
 @admin.register(models.Client)

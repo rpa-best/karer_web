@@ -48,6 +48,8 @@ class Organization(models.Model):
     bik = models.CharField("ВИК", max_length=255, blank=True)
     address = models.CharField("Адрес", max_length=255, blank=True)
     phone = models.CharField("Телефон", max_length=20, blank=True)
+    ogrn = models.CharField("ОГРН", max_length=20, blank=True)
+    kpp = models.CharField("КПП", max_length=20, blank=True)
 
     class Meta:
         verbose_name = "Организация"
@@ -59,7 +61,10 @@ class Organization(models.Model):
     def clean(self):
         validator = INNCheckValidator()
         org = validator(self.inn)
-        # TODO: Set org data
+        self.address = org['a']
+        self.name = org['c']
+        self.ogrn = org['o']
+        self.kpp = org['p']
         return super(Organization, self).clean()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):

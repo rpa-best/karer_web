@@ -16,7 +16,7 @@ class INNCheckValidator:
         response = requests.get(f"{self._base_url}/search-result/{token}")
         orgs = response.json().get('rows')
         if not orgs:
-            return ValidationError("ИНН не найдень")
+            raise ValidationError("ИНН не найдень")
         if len(orgs) > 1:
             return ValidationError(f"Найден {len(orgs)} организации с указинной инн")
         return orgs[0]
