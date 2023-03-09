@@ -1,4 +1,6 @@
+from django.core.validators import MaxLengthValidator
 from django.db import models
+from .validators import INNCheckValidator
 
 
 class Karer(models.Model):
@@ -38,11 +40,14 @@ class Driver(models.Model):
 
 
 class Organization(models.Model):
-    name = models.CharField("Название", max_length=255)
-    inn = models.CharField("ИНН", max_length=20)
-    bik = models.CharField("ВИК", max_length=255)
-    address = models.CharField("Адрес", max_length=255)
-    phone = models.CharField("Телефон", max_length=20)
+    name = models.CharField("Название", max_length=255, blank=True)
+    inn = models.CharField("ИНН", max_length=20, unique=True,
+                           validators=[
+                               MaxLengthValidator(10, 'Неправильный ИНН'),
+                           ])
+    bik = models.CharField("ВИК", max_length=255, blank=True)
+    address = models.CharField("Адрес", max_length=255, blank=True)
+    phone = models.CharField("Телефон", max_length=20, blank=True)
 
     class Meta:
         verbose_name = "Организация"
@@ -50,6 +55,16 @@ class Organization(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def clean(self):
+        validator = INNCheckValidator()
+        org = validator(self.inn)
+        # TODO: Set org data
+        return super(Organization, self).clean()
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.full_clean()
+        return super(Organization, self).save(force_insert, force_update, using, update_fields)
 
 
 class Client(models.Model):
