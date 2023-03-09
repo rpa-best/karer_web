@@ -1,0 +1,24 @@
+version: '3.3'
+
+services:
+  karer_db:
+    container_name: karer_db
+    image: postgres:15.0
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - ./karer_db:/var/lib/postgresql/data
+  karer_web:
+    container_name: karer_web
+    build: .
+    ports:
+      - "9000:9000"
+    command: sh -c "python manage.py runserver 0.0.0.0:9000"
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - karer_db
+    volumes:
+      - .:/app/
