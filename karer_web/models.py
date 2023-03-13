@@ -5,6 +5,8 @@ from .validators import INNCheckValidator
 
 class Karer(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название')
+    slug = models.SlugField(max_length=255, verbose_name='Уникальная название')
+    address = models.TextField(blank=True, null=True, verbose_name='Адрес')
 
     def __str__(self):
         return self.name

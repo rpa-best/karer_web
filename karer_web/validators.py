@@ -9,11 +9,15 @@ class INNCheckValidator:
         response = requests.post(self._base_url, json={
             "query": value
         })
+        if not response.status_code == 200:
+            raise ValidationError('Сервис недоступен')
         return response.json().get('t')
 
     def __call__(self, value):
         token = self._get_token(value)
         response = requests.get(f"{self._base_url}/search-result/{token}")
+        if not response.status_code == 200:
+            raise ValidationError('Сервис недоступен')
         orgs = response.json().get('rows')
         if not orgs:
             raise ValidationError("ИНН не найдень")
