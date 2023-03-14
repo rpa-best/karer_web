@@ -5,10 +5,15 @@ services:
     container_name: karer_db
     image: postgres:15.0
     restart: always
+    expose:
+      - "25432"
+    ports:
+      - "25432:25432"
     env_file:
       - ./.env
     volumes:
       - ./karer_db:/var/lib/postgresql/data
+    command: -p 25432
   karer_web:
     container_name: karer_web
     build: .
