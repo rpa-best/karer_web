@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
-from .jazzmin_conf import *
 from .jet_conf import *
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,10 +36,6 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    # 'material',
-    # 'material.admin',
-    # 'grappelli',
-    # 'jazzmin',
     'karer_web',
     'jet.dashboard',
     'jet',
@@ -53,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "adminsortable2",
     "invite",
+    "import_invite",
 ]
 
 MIDDLEWARE = [
