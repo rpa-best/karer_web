@@ -130,3 +130,4 @@ dmypy.json
 db.sqlite3
 static/
 karer_db/
+./idea/

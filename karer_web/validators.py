@@ -24,3 +24,4 @@ class INNCheckValidator:
         if len(orgs) > 1:
             return ValidationError(f"Найден {len(orgs)} организации с указинной инн")
         return orgs[0]
+        

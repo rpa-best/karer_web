@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from .validators import invite_weight_validate
 
 
 class BaseOrder(models.Model):
@@ -65,6 +66,18 @@ class BaseInvite(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+    def clean(self) -> None:
+        invite_weight_validate({"karer": self.order.karer.slug, 'weight': self.weight, 'name': self.name})
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
+        self.full_clean()
+        return super().save(force_insert, force_update, using, update_fields)
+    
+    @classmethod
+    def check_plate(cls, plate, karer_slug):
+        return cls.objects.filter(car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay', 'accepted', 'created']).exists()
+
 
 
 class ClientInvite(BaseInvite):

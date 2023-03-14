@@ -65,6 +65,10 @@ class BaseImportInvite(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+    @classmethod
+    def check_plate(cls, plate, karer_slug):
+        return cls.objects.filter(car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay', 'accepted', 'created']).exists()
 
 
 class ClientImportInvite(BaseImportInvite):

@@ -5,7 +5,7 @@ from .validators import INNCheckValidator
 
 class Karer(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название')
-    slug = models.SlugField(max_length=255, verbose_name='Уникальная название')
+    slug = models.SlugField(max_length=255, verbose_name='Уникальная название', unique=True)
     address = models.TextField(blank=True, null=True, verbose_name='Адрес')
 
     def __str__(self):
@@ -17,7 +17,7 @@ class Karer(models.Model):
 
 
 class Car(models.Model):
-    number = models.CharField(max_length=100, verbose_name='Номер')
+    number = models.CharField(max_length=100, verbose_name='Номер', unique=True)
     model = models.CharField(max_length=100, verbose_name='Модель')
     vin_number = models.CharField(max_length=100, verbose_name='Вин')
 

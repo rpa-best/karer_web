@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     "adminsortable2",
     "invite",
     "import_invite",
+    "drf_spectacular",
+    "rest_framework",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -155,3 +158,36 @@ CSRF_TRUSTED_ORIGINS=["https://www.karer.keyman24.ru", "https://karer.keyman24.r
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'karer_web.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        "rest_framework.filters.OrderingFilter",
+        "rest_framework.filters.SearchFilter",
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DATETIME_FORMAT': "%d.%m.%Y %H:%M:%S",
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Карьер',
+    'DESCRIPTION': 'Карьер',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'DISABLE_ERRORS_AND_WARNINGS': True,
+    # OTHER SETTINGS
+}
