@@ -10,3 +10,4 @@ requests
 psycopg2-binary==2.9.3
 Pillow==9.2.0
 drf-spectacular==0.25.1
+python-dotenv==0.21.0
