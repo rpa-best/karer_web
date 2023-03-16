@@ -23,7 +23,7 @@ class BaseOrder(models.Model):
         abstract = True
 
     def __str__(self) -> str:
-        return self.id
+        return str(self.id)
 
 
 class OrgOrder(BaseOrder):
