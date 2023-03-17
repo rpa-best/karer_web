@@ -7,7 +7,7 @@ from .models import OrgImportInvite, ClientImportInvite
 
 class OrgImportInviteLineChart(LineChartDashboard):
     settings_form = OrgInviteDashboardForm
-    title = 'Линейный график заявки юр. лицо'
+    title = 'Линейный график импорт заявки юр. лицо'
 
     def init_with_context(self, context):
         if self.params:
@@ -33,7 +33,7 @@ class OrgImportInviteLineChart(LineChartDashboard):
 
 class ClientImportInviteLineChart(LineChartDashboard):
     settings_form = ClientInviteDashboardForm
-    title = 'Линейный график заявки физ. лицо'
+    title = 'Линейный график импорт заявки физ. лицо'
 
     def init_with_context(self, context):
         if self.params:
