@@ -12,8 +12,8 @@ class Karer(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Карьер'
-        verbose_name_plural = "Карьеры"
+        verbose_name = 'Объект'
+        verbose_name_plural = "Объекты"
 
 
 class Car(models.Model):

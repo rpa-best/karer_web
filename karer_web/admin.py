@@ -2,8 +2,8 @@ from django.contrib import admin
 from . import models, forms
 
 
-admin.site.site_title = 'Карьер'
-admin.site.site_header = 'Карьер'
+admin.site.site_title = 'Объект'
+admin.site.site_header = 'Объект'
 admin.site.index_title = 'Главная'
 
 @admin.register(models.Karer)

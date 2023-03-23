@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('create_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
                 ('finish_at', models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')),
                 ('client', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='karer_web.client', verbose_name='Физ. лицо')),
-                ('karer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='karer_web.karer', verbose_name='Карьер')),
+                ('karer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='karer_web.karer', verbose_name='Объект')),
             ],
             options={
                 'verbose_name': 'Импорт физ. лицо',
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('created', 'Создано'), ('accepted', 'Принята'), ('waiting_pay', 'Ожидает оплаты'), ('payed', 'Оплачено'), ('finished', 'Успешно'), ('canceled', 'Отклонена')], default='created', max_length=255, verbose_name='Статус')),
                 ('create_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
                 ('finish_at', models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')),
-                ('karer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='karer_web.karer', verbose_name='Карьер')),
+                ('karer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='karer_web.karer', verbose_name='Объект')),
                 ('organization', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='karer_web.organization', verbose_name='Организация')),
             ],
             options={

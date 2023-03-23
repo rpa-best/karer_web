@@ -12,7 +12,7 @@ class BaseImport(models.Model):
         ('canceled', 'Отклонена')
     )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    karer = models.ForeignKey('karer_web.Karer', models.PROTECT, verbose_name='Карьер')
+    karer = models.ForeignKey('karer_web.Karer', models.PROTECT, verbose_name='Объект')
     desc = models.TextField(verbose_name='Описание')
     status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')

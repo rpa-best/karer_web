@@ -186,8 +186,8 @@ REST_FRAMEWORK = {
 
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Карьер',
-    'DESCRIPTION': 'Карьер',
+    'TITLE': 'Объект',
+    'DESCRIPTION': 'Объект',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'DISABLE_ERRORS_AND_WARNINGS': True,

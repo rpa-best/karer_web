@@ -81,9 +81,9 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=255, verbose_name="Карьер")),
+                ("name", models.CharField(max_length=255, verbose_name="Объект")),
             ],
-            options={"verbose_name": "Карьер", "verbose_name_plural": "Карьеры",},
+            options={"verbose_name": "Объект", "verbose_name_plural": "Объекты",},
         ),
         migrations.CreateModel(
             name="Organization",
