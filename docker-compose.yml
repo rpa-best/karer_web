@@ -12,7 +12,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./karer_db:/var/lib/postgresql/data
+      - karer_db:/var/lib/postgresql/data
     command: -p 25432
   karer_web:
     container_name: karer_web
@@ -27,3 +27,7 @@ services:
       - karer_db
     volumes:
       - .:/app/
+
+volumes:
+  karer_db:
+    driver: local

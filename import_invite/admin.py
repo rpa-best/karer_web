@@ -3,24 +3,17 @@ from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from adminsortable2.admin import SortableAdminBase
 from import_export.admin import ExportActionMixin
+from karer_web.mixins import OwnQuerysetMixin
 from . import models, tabulars, resources
 
 
 @admin.register(models.OrgImport)
-class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
+class OrgOrderAdmin(OwnQuerysetMixin, ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     resource_class = resources.OrgInviteResource
     list_display = ['id', 'create_at', 'finish_at', 'status']
     exclude = ['finish_at', 'status', 'create_at']
     list_filter = ['status', 'organization']
     inlines = [tabulars.OrgInviteTabular]
-
-    def formfield_for_dbfield(self, *args, **kwargs):
-        formfield = super().formfield_for_dbfield(*args, **kwargs)
-        formfield.widget.can_delete_related = False
-        formfield.widget.can_change_related = False
-        formfield.widget.can_add_related = False
-        formfield.widget.can_view_related = False
-        return formfield
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) if not obj else ['karer', 'desc', 'organization']
@@ -63,20 +56,12 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
 
 
 @admin.register(models.ClientImport)
-class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
+class ClientOrderAdmin(OwnQuerysetMixin, ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     resource_classes = [resources.ClientInviteResource]
     list_display = ['id', 'create_at', 'finish_at', 'status']
     exclude = ['finish_at', 'status', 'create_at']
     list_filter = ['status', 'client']
     inlines = [tabulars.ClientInviteTabular]
-
-    def formfield_for_dbfield(self, *args, **kwargs):
-        formfield = super().formfield_for_dbfield(*args, **kwargs)
-        formfield.widget.can_delete_related = False
-        formfield.widget.can_change_related = False
-        formfield.widget.can_add_related = False
-        formfield.widget.can_view_related = False
-        return formfield
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) if not obj else ['karer', 'desc', 'client']

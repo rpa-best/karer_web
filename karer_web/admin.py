@@ -1,10 +1,13 @@
 from django.contrib import admin
-from . import models, forms
+from django.contrib.auth.admin import UserAdmin as _UserAdmin
+from django.utils.translation import gettext_lazy as _
+from . import models, forms, mixins
 
 
 admin.site.site_title = 'Объект'
 admin.site.site_header = 'Объект'
 admin.site.index_title = 'Главная'
+
 
 @admin.register(models.Karer)
 class KarerAdmin(admin.ModelAdmin):
@@ -12,17 +15,17 @@ class KarerAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Car)
-class CarAdmin(admin.ModelAdmin):
+class CarAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
     list_display = ['number', 'model', 'vin_number']
-
+    
 
 @admin.register(models.Driver)
-class DriverAdmin(admin.ModelAdmin):
+class DriverAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
     list_display = ['name', 'phone']
 
 
 @admin.register(models.Organization)
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
     list_display = ['inn', 'name']
     list_display_links = ['name']
 
@@ -35,7 +38,29 @@ class OrganizationAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, change, **kwargs)
 
 
-
 @admin.register(models.Client)
-class ClientAdmin(admin.ModelAdmin):
+class ClientAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
     pass
+
+
+@admin.register(models.User)
+class UserAdmin(_UserAdmin):
+    readonly_fields = ['last_login', 'date_joined']
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name", "email")}),
+        (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                    "karers",
+               ),
+            },
+        ),
+        (_("Important dates"), {"fields": ("last_login", "date_joined")}),
+    )

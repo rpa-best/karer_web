@@ -51,7 +51,7 @@ class BaseImportInvite(models.Model):
         ('canceled', 'Отклонена')
     )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    name = models.CharField(max_length=255, verbose_name='Наименование груза')
+    product = models.ForeignKey("marketplace.Product", models.PROTECT, verbose_name='Продукт', null=True)
     car = models.ForeignKey("karer_web.Car", models.PROTECT, verbose_name='Номер машины')
     driver = models.ForeignKey("karer_web.Driver", models.PROTECT, verbose_name='Водитель')
     weight = models.FloatField(verbose_name='Потребность (кг)')
@@ -64,7 +64,7 @@ class BaseImportInvite(models.Model):
         abstract = True
 
     def __str__(self) -> str:
-        return self.name
+        return str(self.product)
     
     @classmethod
     def check_plate(cls, plate, karer_slug):

@@ -22,6 +22,6 @@ class INNCheckValidator:
         if not orgs:
             raise ValidationError("ИНН не найдень")
         if len(orgs) > 1:
-            return ValidationError(f"Найден {len(orgs)} организации с указинной инн")
+            raise ValidationError(f"Найден {len(orgs)} организации с указинной инн")
         return orgs[0]
         

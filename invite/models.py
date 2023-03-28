@@ -1,7 +1,8 @@
 import uuid
 from django.db import models
-from .validators import invite_weight_validate
-
+from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from import_invite.models import OrgImportInvite, ClientImportInvite
 
 class BaseOrder(models.Model):
     STATUS = (
@@ -52,10 +53,10 @@ class BaseInvite(models.Model):
         ('canceled', 'Отклонена')
     )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    name = models.CharField(max_length=255, verbose_name='Наименование груза')
+    product = models.ForeignKey("marketplace.Product", models.PROTECT, verbose_name='Продукт', null=True)
     car = models.ForeignKey("karer_web.Car", models.PROTECT, verbose_name='Номер машины')
     driver = models.ForeignKey("karer_web.Driver", models.PROTECT, verbose_name='Водитель')
-    weight = models.FloatField(verbose_name='Потребность (кг)')
+    weight = models.FloatField(verbose_name='Потребность (кг)', validators=[MinValueValidator(1)])
     status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
@@ -65,10 +66,17 @@ class BaseInvite(models.Model):
         abstract = True
 
     def __str__(self) -> str:
-        return self.name
+        return str(self.product)
     
     def clean(self) -> None:
-        invite_weight_validate({"karer": self.order.karer.slug, 'weight': self.weight, 'name': self.name})
+        imports = OrgImportInvite.objects.filter(product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0 + \
+            (ClientImportInvite.objects.filter(product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0)
+        exports = OrgInvite.objects.filter(product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0 + \
+            (ClientInvite.objects.filter(product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0)
+        delta = imports - exports
+        if delta < self.weight:
+            raise ValidationError(f"Продукт не достатучном колечестве, имеется {delta} {self.product.unit}")
+        return super().clean()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
         self.full_clean()
@@ -77,7 +85,6 @@ class BaseInvite(models.Model):
     @classmethod
     def check_plate(cls, plate, karer_slug):
         return cls.objects.filter(car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay', 'accepted', 'created']).exists()
-
 
 
 class ClientInvite(BaseInvite):

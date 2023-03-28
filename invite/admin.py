@@ -16,14 +16,6 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) if not obj else ['karer', 'desc', 'organization']
-    
-    def formfield_for_dbfield(self, *args, **kwargs):
-        formfield = super().formfield_for_dbfield(*args, **kwargs)
-        formfield.widget.can_delete_related = False
-        formfield.widget.can_change_related = False
-        formfield.widget.can_add_related = False
-        formfield.widget.can_view_related = False
-        return formfield
 
     def export_admin_action(self, request, queryset):
         """
@@ -68,14 +60,6 @@ class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     exclude = ['finish_at', 'status', 'create_at']
     list_filter = ['status', 'client']
     inlines = [tabulars.ClientInviteTabular]
-
-    def formfield_for_dbfield(self, *args, **kwargs):
-        formfield = super().formfield_for_dbfield(*args, **kwargs)
-        formfield.widget.can_delete_related = False
-        formfield.widget.can_change_related = False
-        formfield.widget.can_add_related = False
-        formfield.widget.can_view_related = False
-        return formfield
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) if not obj else ['karer', 'desc', 'client']

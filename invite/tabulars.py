@@ -13,13 +13,6 @@ class OrgInviteTabular(SortableStackedInline):
     def has_change_permission(self, request, obj = None) -> bool:
         return False
 
-    def formfield_for_dbfield(self, *args, **kwargs):
-        formfield = super().formfield_for_dbfield(*args, **kwargs)
-        formfield.widget.can_delete_related = False
-        formfield.widget.can_change_related = False
-        formfield.widget.can_add_related = False
-        formfield.widget.can_view_related = False
-        return formfield
 
 class ClientInviteTabular(SortableStackedInline):
     model = ClientInvite
@@ -30,11 +23,3 @@ class ClientInviteTabular(SortableStackedInline):
 
     def has_change_permission(self, request, obj = None) -> bool:
         return False
-    
-    def formfield_for_dbfield(self, *args, **kwargs):
-        formfield = super().formfield_for_dbfield(*args, **kwargs)
-        formfield.widget.can_delete_related = False
-        formfield.widget.can_change_related = False
-        formfield.widget.can_add_related = False
-        formfield.widget.can_view_related = False
-        return formfield
