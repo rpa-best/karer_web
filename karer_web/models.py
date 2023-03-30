@@ -21,7 +21,6 @@ class Car(models.Model):
     number = models.CharField(max_length=100, verbose_name='Номер', unique=True)
     model = models.CharField(max_length=100, verbose_name='Модель')
     vin_number = models.CharField(max_length=100, verbose_name='Вин')
-    karer = models.ForeignKey(Karer, models.PROTECT, null=True)
 
     class Meta:
         verbose_name = "Машина"
@@ -34,7 +33,6 @@ class Car(models.Model):
 class Driver(models.Model):
     name = models.CharField(max_length=255, verbose_name='ФИО')
     phone = models.CharField(max_length=255, verbose_name='Номер телефона')
-    karer = models.ForeignKey(Karer, models.PROTECT, null=True)
 
     class Meta:
         verbose_name = "Водитель"
@@ -55,7 +53,6 @@ class Organization(models.Model):
     phone = models.CharField("Телефон", max_length=20, blank=True)
     ogrn = models.CharField("ОГРН", max_length=20, blank=True)
     kpp = models.CharField("КПП", max_length=20, blank=True)
-    karer = models.ForeignKey(Karer, models.PROTECT, null=True, blank=True)
 
     class Meta:
         verbose_name = "Организация"
@@ -80,9 +77,8 @@ class Organization(models.Model):
 
 class Client(models.Model):
     name = models.CharField("ФИО", max_length=255)
-    passport = models.CharField("Паспорт", max_length=20)
-    phone = models.CharField("Телефон", max_length=20)
-    karer = models.ForeignKey(Karer, models.PROTECT, null=True)
+    passport = models.CharField("Паспорт", max_length=20, unique=True)
+    phone = models.CharField("Телефон", max_length=20, unique=True)
 
     class Meta:
         verbose_name = "Физическое лицо"
@@ -93,4 +89,4 @@ class Client(models.Model):
 
 
 class User(AbstractUser):
-    karer = models.ForeignKey(Karer, models.PROTECT, null=True)
+    karer = models.ForeignKey(Karer, models.PROTECT, null=True, blank=True)
