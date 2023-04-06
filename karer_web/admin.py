@@ -15,17 +15,17 @@ class KarerAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Car)
-class CarAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
+class CarAdmin(admin.ModelAdmin):
     list_display = ['number', 'model', 'vin_number']
     
 
 @admin.register(models.Driver)
-class DriverAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
+class DriverAdmin(admin.ModelAdmin):
     list_display = ['name', 'phone']
 
 
 @admin.register(models.Organization)
-class OrganizationAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
+class OrganizationAdmin(admin.ModelAdmin):
     list_display = ['inn', 'name']
     list_display_links = ['name']
 
@@ -39,7 +39,7 @@ class OrganizationAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
 
 
 @admin.register(models.Client)
-class ClientAdmin(mixins.OwnQuerysetMixin, admin.ModelAdmin):
+class ClientAdmin(admin.ModelAdmin):
     pass
 
 
@@ -58,7 +58,7 @@ class UserAdmin(_UserAdmin):
                     "is_superuser",
                     "groups",
                     "user_permissions",
-                    "karers",
+                    "karer",
                ),
             },
         ),

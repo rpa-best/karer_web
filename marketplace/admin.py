@@ -1,5 +1,5 @@
 from django.contrib import admin
-
+from karer_web.mixins import OwnQuerysetMixin
 from . import models
 
 
@@ -14,5 +14,5 @@ class UnitAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(OwnQuerysetMixin, admin.ModelAdmin):
     pass
