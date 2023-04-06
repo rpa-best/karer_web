@@ -28,6 +28,45 @@ services:
     volumes:
       - .:/app/
 
+  karer_rabbit:
+    container_name: karer_rabbit
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - ./.env
+  
+  karer_celery:
+    container_name: karer_celery
+    build: .
+    command: celery -A karer_web worker -l info
+    volumes:
+      - ./:/app/
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - karer_db
+      - karer_rabbit
+
+  karer_celery_beat:
+    container_name: karer_celery_beat
+    build: .
+    command: celery -A karer_web beat -l info
+    volumes:
+      - ./:/app/
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - karer_db
+      - karer_rabbit
+
+  karer_redis:
+    container_name: karer_redis
+    image: redis:alpine
+
 volumes:
   karer_db:
     driver: local

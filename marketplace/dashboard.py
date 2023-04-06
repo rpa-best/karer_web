@@ -1,7 +1,7 @@
 from karer_web.charts.info import InfoDashboard
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from .forms import StateProductDashboardForm
-from import_invite.models import OrgImportInvite, ClientImportInvite
+from import_invite.models import OrgImportInvite
 from invite.models import OrgInvite, ClientInvite
 from marketplace.models import Product
 
@@ -20,18 +20,15 @@ class StateProductDashboard(InfoDashboard):
             request = context['request']
             if request.user.is_superuser:
                 if self.params.get('karer_id'):
-                    imports = OrgImportInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0 + \
-                        (ClientImportInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0)
-                    exports = OrgInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0 + \
-                        (ClientInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0)
+                    imports = OrgImportInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0
+                    exports = OrgInvite.objects.filter(~Q(status__in=["canceled"]), product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0 + \
+                        (ClientInvite.objects.filter(~Q(status__in=["canceled"]), product_id__in=self.params['product_id'], order__karer_id__in=self.params['karer_id']).aggregate(sum=Sum('weight'))['sum'] or 0)
                 else:
-                    imports = OrgImportInvite.objects.filter(product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0 + \
-                        (ClientImportInvite.objects.filter(product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0)
-                    exports = OrgInvite.objects.filter(product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0 + \
-                        (ClientInvite.objects.filter(product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0)
+                    imports = OrgImportInvite.objects.filter(product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0
+                    exports = OrgInvite.objects.filter(~Q(status__in=["canceled"]), product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0 + \
+                        (ClientInvite.objects.filter(~Q(status__in=["canceled"]), product_id__in=self.params['product_id']).aggregate(sum=Sum('weight'))['sum'] or 0)
             else:
-                imports = OrgImportInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=[request.user.karer_id]).aggregate(sum=Sum('weight'))['sum'] or 0 + \
-                    (ClientImportInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=[request.user.karer_id]).aggregate(sum=Sum('weight'))['sum'] or 0)
+                imports = OrgImportInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=[request.user.karer_id]).aggregate(sum=Sum('weight'))['sum'] or 0
                 exports = OrgInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=[request.user.karer_id]).aggregate(sum=Sum('weight'))['sum'] or 0 + \
                     (ClientInvite.objects.filter(product_id__in=self.params['product_id'], order__karer_id__in=[request.user.karer_id]).aggregate(sum=Sum('weight'))['sum'] or 0)
             delta = imports - exports

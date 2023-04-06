@@ -17,6 +17,9 @@ def get_app_list(context, order=True):
         except AttributeError:
             has_module_perms = request.user.has_module_perms(app_label) # Fix Django < 1.8 issue
 
+        if model._meta.model_name in ['orginvite', 'clientinvite']:
+            continue
+
         if has_module_perms:
             perms = model_admin.get_model_perms(request)
 

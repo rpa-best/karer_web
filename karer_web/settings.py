@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import dotenv
 from .jet_conf import *
+from celery.schedules import crontab
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv.load_dotenv()
@@ -50,11 +51,14 @@ INSTALLED_APPS = [
     "adminsortable2",
     "invite",
     "import_invite",
+    "car_control",
     "drf_spectacular",
     "rest_framework",
     "django_filters",
     "import_export",
     "marketplace",
+    "django_celery_beat",
+    "simple_history",
 ]
 
 MIDDLEWARE = [
@@ -67,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'karer_web.middleware.FormRequestMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'karer_web.urls'
@@ -129,7 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -192,3 +197,7 @@ SPECTACULAR_SETTINGS = {
     'DISABLE_ERRORS_AND_WARNINGS': True,
     # OTHER SETTINGS
 }
+
+CELERY_TIMEZONE = 'Asia/Tashkent'
+CELERY_BROKER_URL=f'amqp://{os.getenv("RABBITMQ_DEFAULT_USER")}:{os.getenv("RABBITMQ_DEFAULT_PASS")}@{os.getenv("RABBITMQ_DEFAULT_HOST")}:5672'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

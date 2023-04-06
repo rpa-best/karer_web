@@ -13,15 +13,6 @@ class InviteResource(ModelResource):
     weight = Field('weight', "Потребность (кг)")
 
 
-    
-class ClientInviteResource(InviteResource):
-    client = Field('order__client', 'Физ. лицо')
-
-    class Meta:
-        model = models.ClientImportInvite
-        exclude = ['status', 'position', 'order']
-
-
 class OrgInviteResource(InviteResource):
     organization = Field('order__organization', 'Юр. лицо')
 

@@ -3,18 +3,9 @@ from django.db import models
 
 
 class BaseImport(models.Model):
-    STATUS = (
-        ('created', 'Создано'),
-        ('accepted', 'Принята'),
-        ('waiting_pay', 'Ожидает оплаты'),
-        ('payed', 'Оплачено'),
-        ('finished', 'Успешно'),
-        ('canceled', 'Отклонена')
-    )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     karer = models.ForeignKey('karer_web.Karer', models.PROTECT, verbose_name='Объект')
     desc = models.TextField(verbose_name='Описание')
-    status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
 
@@ -33,18 +24,8 @@ class OrgImport(BaseImport):
         verbose_name_plural = "Импорты юр. лицо"
 
 
-class ClientImport(BaseImport):
-    client = models.ForeignKey("karer_web.Client", models.PROTECT, verbose_name='Физ. лицо')
-
-    class Meta:
-        verbose_name = "Импорт физ. лицо"
-        verbose_name_plural = "Импорты физ. лицо"
-
-
 class BaseImportInvite(models.Model):
     STATUS = (
-        ('created', 'Создано'),
-        ('accepted', 'Принята'),
         ('waiting_pay', 'Ожидает оплаты'),
         ('payed', 'Оплачено'),
         ('finished', 'Успешно'),
@@ -69,15 +50,6 @@ class BaseImportInvite(models.Model):
     @classmethod
     def check_plate(cls, plate, karer_slug):
         return cls.objects.filter(car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay', 'accepted', 'created']).exists()
-
-
-class ClientImportInvite(BaseImportInvite):
-    order = models.ForeignKey(ClientImport, models.CASCADE, verbose_name='Импорт')
-
-    class Meta:
-        ordering = ['position']
-        verbose_name = "Заявка физ. лицо"
-        verbose_name_plural = "Заявкы физ. лицо"
 
 
 class OrgImportInvite(BaseImportInvite):

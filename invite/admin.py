@@ -3,15 +3,17 @@ from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from adminsortable2.admin import SortableAdminBase
 from import_export.admin import ExportActionMixin
+from simple_history.admin import SimpleHistoryAdmin
+from karer_web.mixins import ReadOnlyAdminModelMixin
 from . import models, tabulars, resources
 
 
 @admin.register(models.OrgOrder)
 class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     resource_class = resources.OrgInviteResource
-    list_display = ['id', 'create_at', 'finish_at', 'status']
-    exclude = ['finish_at', 'status', 'create_at']
-    list_filter = ['status', 'organization']
+    list_display = ['id', 'create_at', 'finish_at']
+    exclude = ['finish_at',  'create_at']
+    list_filter = ['organization']
     inlines = [tabulars.OrgInviteTabular]
 
     def get_readonly_fields(self, request, obj=None):
@@ -56,9 +58,9 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
 @admin.register(models.ClientOrder)
 class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     resource_classes = [resources.ClientInviteResource]
-    list_display = ['id', 'create_at', 'finish_at', 'status']
-    exclude = ['finish_at', 'status', 'create_at']
-    list_filter = ['status', 'client']
+    list_display = ['id', 'create_at', 'finish_at']
+    exclude = ['finish_at', 'create_at']
+    list_filter = ['client']
     inlines = [tabulars.ClientInviteTabular]
 
     def get_readonly_fields(self, request, obj=None):
@@ -99,3 +101,17 @@ class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
             )
         )
         return actions
+
+
+@admin.register(models.OrgInvite)
+class OrgInviteAdmin(ReadOnlyAdminModelMixin, SimpleHistoryAdmin):
+    exclude = ["id", "position"]
+    history_list_display = ["status"]
+    history_exclude = ('history_reason')
+
+
+@admin.register(models.ClientInvite)
+class OrgInviteAdmin(ReadOnlyAdminModelMixin, SimpleHistoryAdmin):
+    exclude = ["id", "position"]
+    history_list_display = ["status"]
+    history_exclude = ('history_reason')
