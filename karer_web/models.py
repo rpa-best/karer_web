@@ -21,6 +21,7 @@ class Car(models.Model):
     number = models.CharField(max_length=100, verbose_name='Номер', unique=True)
     model = models.CharField(max_length=100, verbose_name='Модель')
     vin_number = models.CharField(max_length=100, verbose_name='Вин')
+    model_seria = models.CharField(max_length=100, null=True)
 
     class Meta:
         verbose_name = "Машина"

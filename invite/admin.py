@@ -1,5 +1,7 @@
 from django.contrib import admin, messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import path, reverse
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from adminsortable2.admin import SortableAdminBase
 from import_export.admin import ExportActionMixin
@@ -15,6 +17,7 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     exclude = ['finish_at',  'create_at']
     list_filter = ['organization']
     inlines = [tabulars.OrgInviteTabular]
+    list_per_page = 10
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) if not obj else ['karer', 'desc', 'organization']
@@ -54,6 +57,36 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
             )
         )
         return actions
+    
+    def get_urls(self):
+        my_urls = [
+            path('<path:object_id>/change/<path:invite_id>/manual-mode/',
+                self.invite_manual_mode,
+                name='%s_%s_manual-mode' % ("invite", "orginvite")),
+            path('<path:object_id>/change/<path:invite_id>/recover/',
+                self.invite_recover,
+                name='%s_%s_recover' % ("invite", "orginvite")),
+        ]
+        return my_urls + super().get_urls()
+    
+    def invite_recover(self, request, object_id, invite_id): 
+        invite = get_object_or_404(models.OrgInvite, id=invite_id)
+        invite.status = 'waiting_pay'
+        invite.save()
+        messages.add_message(request, messages.constants.SUCCESS, "Заявка восстановлено")
+        url = reverse("admin:%s_%s_change" % self.get_model_info(), kwargs={"object_id": object_id})
+        return HttpResponseRedirect(url)
+    
+    def invite_manual_mode(self, request, object_id, invite_id):
+        try:
+            print(request, invite_id)
+            # TODO: post request
+            messages.add_message(request, messages.constants.INFO, "Заявка перешла на ручной режим")
+        except Exception as _exp:
+            messages.add_message(request, messages.constants.ERROR, str(_exp))
+        url = reverse("admin:%s_%s_change" % self.get_model_info(), kwargs={"object_id": object_id})
+        return HttpResponseRedirect(url)
+
 
 @admin.register(models.ClientOrder)
 class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
@@ -62,6 +95,7 @@ class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     exclude = ['finish_at', 'create_at']
     list_filter = ['client']
     inlines = [tabulars.ClientInviteTabular]
+    list_per_page = 10
 
     def get_readonly_fields(self, request, obj=None):
         return super().get_readonly_fields(request, obj) if not obj else ['karer', 'desc', 'client']
