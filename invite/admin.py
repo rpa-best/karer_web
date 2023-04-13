@@ -14,7 +14,7 @@ from . import models, tabulars, resources
 class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     resource_class = resources.OrgInviteResource
     list_display = ['id', 'create_at', 'finish_at']
-    exclude = ['finish_at',  'create_at']
+    exclude = ['finish_at',  'create_at', "user"]
     list_filter = ['organization']
     inlines = [tabulars.OrgInviteTabular]
     list_per_page = 10
@@ -73,6 +73,7 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
         invite = get_object_or_404(models.OrgInvite, id=invite_id)
         invite.status = 'waiting_pay'
         invite.save()
+        models.org_invite_schedules(models.OrgInvite, invite, True)
         messages.add_message(request, messages.constants.SUCCESS, "Заявка восстановлено")
         url = reverse("admin:%s_%s_change" % self.get_model_info(), kwargs={"object_id": object_id})
         return HttpResponseRedirect(url)
@@ -87,12 +88,16 @@ class OrgOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
         url = reverse("admin:%s_%s_change" % self.get_model_info(), kwargs={"object_id": object_id})
         return HttpResponseRedirect(url)
 
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(models.ClientOrder)
 class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
     resource_classes = [resources.ClientInviteResource]
     list_display = ['id', 'create_at', 'finish_at']
-    exclude = ['finish_at', 'create_at']
+    exclude = ['finish_at', 'create_at', "user"]
     list_filter = ['client']
     inlines = [tabulars.ClientInviteTabular]
     list_per_page = 10
@@ -136,16 +141,20 @@ class ClientOrderAdmin(ExportActionMixin, SortableAdminBase, admin.ModelAdmin):
         )
         return actions
 
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(models.OrgInvite)
 class OrgInviteAdmin(ReadOnlyAdminModelMixin, SimpleHistoryAdmin):
     exclude = ["id", "position"]
     history_list_display = ["status"]
-    history_exclude = ('history_reason')
+    history_exclude = ('history_reason',)
 
 
 @admin.register(models.ClientInvite)
 class OrgInviteAdmin(ReadOnlyAdminModelMixin, SimpleHistoryAdmin):
     exclude = ["id", "position"]
     history_list_display = ["status"]
-    history_exclude = ('history_reason')
+    history_exclude = ('history_reason',)

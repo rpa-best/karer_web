@@ -10,6 +10,7 @@ from django.utils import timezone
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 from simple_history.models import HistoricalRecords
 from import_invite.models import OrgImportInvite
+from .tasks import WAITING_PAY_NOTIFICATION
 
 
 class BaseOrder(models.Model):
@@ -18,6 +19,7 @@ class BaseOrder(models.Model):
     desc = models.TextField(verbose_name='Описание')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
+    user = models.ForeignKey('karer_web.User', models.PROTECT, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -106,48 +108,26 @@ class OrgInvite(BaseInvite):
 @receiver(post_save, sender=OrgInvite)
 def org_invite_schedules(sender, instance, created, **kwargs):
     if created:
-        crontab, _ = CrontabSchedule.objects.get_or_create(hour="*/24")
+        crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_PAY_NOTIFICATION}")
         PeriodicTask.objects.create(
-            name=f"Изменить статус заявки юр. лица ({instance.id}) cancel_org_waiting_pay",
-            task="cancel_org_waiting_pay",
-            kwargs=json.dumps({'ids': [str(instance.id)]}),
-            start_time=timezone.now() + timedelta(minutes=1),
-            one_off=True,
-            crontab=crontab,
-            description=f"Изменить статус заявки юр. лица {instance.id} с 'ожидание оплаты' на 'отклонена'",
-        )
-        crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{24 * 30}")
-        PeriodicTask.objects.create(
-            name=f"Изменить статус заявки юр. лица ({instance.id}) cancel_org_payed",
-            task="cancel_org_payed",
-            kwargs=json.dumps({'ids': [str(instance.id)]}),
-            start_time=timezone.now() + timedelta(days=30),
-            one_off=True,
-            crontab=crontab,
-            description=f"Изменить статус заявки юр. лица {instance.id} с 'оплачена' на 'отклонена'",
+            name=str(uuid.uuid4()),
+            task="notification_before_org",
+            kwargs=json.dumps({'ids': [str(instance.id)], 'state': 'waiting_pay'}),
+            start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
+            one_off=True, crontab=crontab,
+            description=f"Уведамление юр. лица {instance.id} с 'ожидание оплаты' на 'отклонена'",
         )
 
 
 @receiver(post_save, sender=ClientInvite)
 def client_invite_schedules(sender, instance, created, **kwargs):
     if created:
-        crontab, _ = CrontabSchedule.objects.get_or_create(hour="*/24")
+        crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_PAY_NOTIFICATION}")
         PeriodicTask.objects.create(
-            name=f"Изменить статус заявки юр. лица ({instance.id})",
-            task="cancel_client_waiting_pay",
-            kwargs=json.dumps({'ids': [str(instance.id)]}),
-            start_time=timezone.now() + timedelta(minutes=1),
-            one_off=True,
-            crontab=crontab,
-            description=f"Изменить статус заявки юр. лица {instance.id} с 'ожидание оплаты' на 'отклонена'",
-        )
-        crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{24 * 30}")
-        PeriodicTask.objects.create(
-            name=f"Изменить статус заявки юр. лица ({instance.id})",
-            task="cancel_client_payed",
-            kwargs=json.dumps({'ids': [str(instance.id)]}),
-            start_time=timezone.now() + timedelta(days=30),
-            one_off=True,
-            crontab=crontab,
-            description=f"Изменить статус заявки юр. лица {instance.id} с 'оплачена' на 'отклонена'",
+            name=str(uuid.uuid4()),
+            task="notification_before_client",
+            kwargs=json.dumps({'ids': [str(instance.id)], 'state': 'waiting_pay'}),
+            start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
+            one_off=True, crontab=crontab,
+            description=f"Уведамление юр. лица {instance.id} с 'ожидание оплаты' на 'отклонена'",
         )

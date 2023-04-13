@@ -1,12 +1,17 @@
 from django.contrib import admin
+from django.urls import path
 from django.contrib.auth.admin import UserAdmin as _UserAdmin
 from django.utils.translation import gettext_lazy as _
-from . import models, forms, mixins
+from . import models, forms, views
 
 
 admin.site.site_title = 'Объект'
 admin.site.site_header = 'Объект'
 admin.site.index_title = 'Главная'
+admin.site.get_urls = lambda: [
+    path("accept-pvc/", views.accept_pvc, name='accept_pvc'),
+    path("register/", views.register, name='accept_pvc'),
+] + admin.AdminSite.get_urls(admin.site)
 
 
 @admin.register(models.Karer)
@@ -47,8 +52,8 @@ class ClientAdmin(admin.ModelAdmin):
 class UserAdmin(_UserAdmin):
     readonly_fields = ['last_login', 'date_joined']
     fieldsets = (
-        (None, {"fields": ("username", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email")}),
+        (None, {"fields": ("email", "password")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name")}),
         (
             _("Permissions"),
             {
@@ -64,3 +69,4 @@ class UserAdmin(_UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
+    ordering = ["email"]

@@ -188,6 +188,8 @@ REST_FRAMEWORK = {
 }
 
 AUTH_USER_MODEL = "karer_web.User"
+AUTHENTICATION_BACKENDS = ['karer_web.backends.EmailBackend']
+LOGIN_REDIRECT_URL = "/"
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Объект',
@@ -199,5 +201,13 @@ SPECTACULAR_SETTINGS = {
 }
 
 CELERY_TIMEZONE = 'Asia/Tashkent'
-CELERY_BROKER_URL=f'amqp://{os.getenv("RABBITMQ_DEFAULT_USER")}:{os.getenv("RABBITMQ_DEFAULT_PASS")}@{os.getenv("RABBITMQ_DEFAULT_HOST")}:5672'
+CELERY_BROKER_URL = f'amqp://{os.getenv("RABBITMQ_DEFAULT_USER")}:{os.getenv("RABBITMQ_DEFAULT_PASS")}@{os.getenv("RABBITMQ_DEFAULT_HOST")}:5672'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'parserdata00@gmail.com'
+EMAIL_HOST_PASSWORD = 'ugbdgnjduhgbsjjm'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

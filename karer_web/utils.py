@@ -1,7 +1,7 @@
+from random import randrange
 from django.apps.registry import apps
 from django.urls import NoReverseMatch, reverse
 from django.utils.text import capfirst
-from django.utils.translation import gettext_lazy as _
 from jet.utils import get_admin_site
 
 
@@ -73,3 +73,7 @@ def get_app_list(context, order=True):
             app['models'].sort(key=lambda x: x['name'])
 
     return app_list
+
+
+def generate_pvc():
+    return str(randrange(100000, 999999, 1))

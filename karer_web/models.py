@@ -1,7 +1,13 @@
 from django.core.validators import MaxLengthValidator
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UnicodeUsernameValidator
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from .validators import INNCheckValidator
+from .tasks import send_email
+
+
+SEND_PVC_SUBJECT = "PVC"
+SEND_PVC_TEXT = "Pvc for auth - {pvc}"
 
 
 class Karer(models.Model):
@@ -91,3 +97,23 @@ class Client(models.Model):
 
 class User(AbstractUser):
     karer = models.ForeignKey(Karer, models.PROTECT, null=True, blank=True)
+    email = models.EmailField(_("email address"), unique=True, error_messages={
+        "unique": _("A user with that email already exists."),
+    })
+    is_staff = models.BooleanField(
+        _("staff status"),
+        default=True,
+        help_text=_("Designates whether the user can log into this admin site."),
+    )
+    password = models.CharField(_("password"), max_length=128, blank=True, null=True)
+    username = None
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    def send_pvc(self):
+        from .utils import generate_pvc
+
+        new_password = generate_pvc()
+        self.set_password(new_password)
+        self.save()
+        send_email.delay(self.email, SEND_PVC_SUBJECT, SEND_PVC_TEXT.format(pvc=new_password))
