@@ -25,7 +25,7 @@ def _notification_before(model, ids, state):
     for instance in qs:
         subject = WAITING_PAY_NOTIFICATION_SUBJECT if instance.status == "waiting_pay" else PAYED_NOTIFICATION_SUBJECT
         message = WAITING_PAY_NOTIFICATION_TEXT if instance.status == "waiting_pay" else WAITING_PAY_NOTIFICATION_TEXT
-        send_email.delay(instance.order.user.email, subject, message)
+        send_email.delay(instance.order.user.email, subject, message.format(instance_id=instance.id, hours=WAITING_CANCEL))
         crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_CANCEL}")
         PeriodicTask.objects.create(
             name=str(uuid.uuid4()),
