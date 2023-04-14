@@ -37,7 +37,7 @@ class BaseImportInvite(models.Model):
     car = models.ForeignKey("core.Car", models.PROTECT, verbose_name='Номер машины')
     driver = models.ForeignKey("core.Driver", models.PROTECT, verbose_name='Водитель')
     weight = models.FloatField(verbose_name='Потребность (кг)')
-    status = models.CharField(max_length=255, choices=STATUS, default='created', verbose_name='Статус')
+    status = models.CharField(max_length=255, choices=STATUS, default='waiting_pay', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
     position = models.PositiveIntegerField(null=True, verbose_name='Позиция')
@@ -51,8 +51,8 @@ class BaseImportInvite(models.Model):
     @classmethod
     def check_plate(cls, plate, karer_slug):
         return cls.objects.filter(
-            car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay']
-        ).exists()
+            car__number=plate, order__karer__slug=karer_slug
+        ).order_by("position", "create_at").first()
 
 
 class OrgImportInvite(BaseImportInvite):

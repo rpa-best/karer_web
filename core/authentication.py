@@ -16,7 +16,7 @@ class BasicAuthentication(JWTAuthentication):
             return None
         username_password = username_password[1].split(':')
         try:
-            user = User.objects.get(username=username_password[0])
+            user = User.objects.get(email=username_password[0])
             user.check_password(username_password[1])
             return user, True
         except (User.DoesNotExist, ValueError):

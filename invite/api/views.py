@@ -1,14 +1,13 @@
-from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from ..models import ClientInvite, OrgInvite
+from .serializers import InviteCheckSerializer
 
 
 class InvitePlateCheck(GenericAPIView):
+    serializer_class = InviteCheckSerializer
+
     def post(self, request, *args, **kwargs):
-        plate = self.kwargs.get('plate')
-        check = OrgInvite.check_plate(plate, request.data.get('karer'))
-        if not check:
-            check = ClientInvite.check_plate(plate, request.data.get('karer'))
-        return Response({'check': check}, status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data)

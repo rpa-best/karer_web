@@ -8,7 +8,7 @@ class Category(models.Model):
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
 
@@ -19,7 +19,7 @@ class Unit(models.Model):
         verbose_name = "Единица измерение"
         verbose_name_plural = "Единица измерении"
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
 
@@ -35,5 +35,5 @@ class Product(models.Model):
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name

@@ -92,8 +92,8 @@ class BaseInvite(models.Model):
     @classmethod
     def check_plate(cls, plate, karer_slug):
         return cls.objects.filter(
-            car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay']
-        ).exists()
+            car__number=plate, order__karer__slug=karer_slug
+        ).order_by("position", "create_at").first()
 
 
 class ClientInvite(BaseInvite):

@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import HistoryView
 
 router = DefaultRouter()
-router.register("router", HistoryView, "")
+router.register("history", HistoryView, "")
 
 urlpatterns = [
     path("", include(router.urls))
