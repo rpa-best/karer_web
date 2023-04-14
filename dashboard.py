@@ -1,13 +1,14 @@
-from jet.dashboard.dashboard import AppIndexDashboard, Dashboard
 from jet.dashboard import modules
-from invite.dashboard import OrgInviteLineChart, ClientInviteLineChart
+from jet.dashboard.dashboard import AppIndexDashboard as _AppIndexDashboard
+from jet.dashboard.dashboard import Dashboard
+
+from core.dashboard import InviteLineChart
 from import_invite.dashboard import OrgImportInviteLineChart
+from invite.dashboard import ClientInviteLineChart, OrgInviteLineChart
 from marketplace.dashboard import StateProductDashboard
-from karer_web.dashboard import InviteLineChart
-from django.utils.translation import gettext_lazy as _
 
 
-class AppIndexDashboard(AppIndexDashboard):
+class AppIndexDashboard(_AppIndexDashboard):
 
     def init_with_context(self, context):
         self.available_children.append(modules.ModelList)

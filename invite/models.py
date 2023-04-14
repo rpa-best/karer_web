@@ -1,25 +1,28 @@
-import uuid
 import json
+import uuid
 from datetime import timedelta
-from django.db import models
-from django.core.validators import MinValueValidator
+
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
-from django_celery_beat.models import PeriodicTask, CrontabSchedule
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from simple_history.models import HistoricalRecords
+
 from import_invite.models import OrgImportInvite
+
 from .tasks import WAITING_PAY_NOTIFICATION
 
 
 class BaseOrder(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    karer = models.ForeignKey('karer_web.Karer', models.PROTECT)
+    karer = models.ForeignKey('core.Karer', models.PROTECT)
     desc = models.TextField(verbose_name='Описание')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
-    user = models.ForeignKey('karer_web.User', models.PROTECT, null=True, blank=True)
+    user = models.ForeignKey('core.User', models.PROTECT, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -29,7 +32,7 @@ class BaseOrder(models.Model):
 
 
 class OrgOrder(BaseOrder):
-    organization = models.ForeignKey("karer_web.Organization", models.PROTECT, verbose_name='Организация')
+    organization = models.ForeignKey("core.Organization", models.PROTECT, verbose_name='Организация')
 
     class Meta:
         verbose_name = "Заказ юр. лицо"
@@ -37,7 +40,7 @@ class OrgOrder(BaseOrder):
 
 
 class ClientOrder(BaseOrder):
-    client = models.ForeignKey("karer_web.Client", models.PROTECT, verbose_name='Физ. лицо')
+    client = models.ForeignKey("core.Client", models.PROTECT, verbose_name='Физ. лицо')
 
     class Meta:
         verbose_name = "Заказ физ. лицо"
@@ -53,24 +56,30 @@ class BaseInvite(models.Model):
     )
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     product = models.ForeignKey("marketplace.Product", models.PROTECT, verbose_name='Продукт', null=True)
-    car = models.ForeignKey("karer_web.Car", models.PROTECT, verbose_name='Номер машины')
-    driver = models.ForeignKey("karer_web.Driver", models.PROTECT, verbose_name='Водитель')
+    car = models.ForeignKey("core.Car", models.PROTECT, verbose_name='Номер машины')
+    driver = models.ForeignKey("core.Driver", models.PROTECT, verbose_name='Водитель')
     weight = models.FloatField(verbose_name='Потребность (кг)', validators=[MinValueValidator(1)])
     status = models.CharField(max_length=255, choices=STATUS, default='waiting_pay', verbose_name='Статус')
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     finish_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата закрытия')
     position = models.PositiveIntegerField(null=True, verbose_name='Позиция')
-    
+
     class Meta:
         abstract = True
 
     def __str__(self) -> str:
         return str(self.product)
-    
+
     def clean(self) -> None:
-        imports = OrgImportInvite.objects.filter(product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0
-        exports = OrgInvite.objects.filter(~models.Q(status__in=["canceled"]), product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0 + \
-            (ClientInvite.objects.filter(~models.Q(status__in=["canceled"]), product_id=self.product_id, order__karer_id=self.order.karer_id).aggregate(sum=models.Sum('weight'))['sum'] or 0)
+        imports = OrgImportInvite.objects.filter(
+            product_id=self.product_id, order__karer_id=self.order.karer_id
+        ).aggregate(sum=models.Sum('weight'))['sum'] or 0
+        exports = OrgInvite.objects.filter(
+            ~models.Q(status__in=["canceled"]), product_id=self.product_id, order__karer_id=self.order.karer_id
+        ).aggregate(sum=models.Sum('weight'))['sum'] or 0 + \
+            (ClientInvite.objects.filter(
+                ~models.Q(status__in=["canceled"]), product_id=self.product_id, order__karer_id=self.order.karer_id
+            ).aggregate(sum=models.Sum('weight'))['sum'] or 0)
         delta = imports - exports
         if delta < self.weight:
             raise ValidationError(f"Продукт не достатучном колечестве, имеется {delta} {self.product.unit}")
@@ -79,10 +88,12 @@ class BaseInvite(models.Model):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None) -> None:
         self.full_clean()
         return super().save(force_insert, force_update, using, update_fields)
-    
+
     @classmethod
     def check_plate(cls, plate, karer_slug):
-        return cls.objects.filter(car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay']).exists()
+        return cls.objects.filter(
+            car__number=plate, order__karer__slug=karer_slug, status__in=['payed', 'waiting_pay']
+        ).exists()
 
 
 class ClientInvite(BaseInvite):

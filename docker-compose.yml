@@ -40,7 +40,7 @@ services:
   karer_celery:
     container_name: karer_celery
     build: .
-    command: celery -A karer_web worker -l info
+    command: celery -A core worker -l info
     volumes:
       - ./:/app/
     restart: always
@@ -53,7 +53,7 @@ services:
   karer_celery_beat:
     container_name: karer_celery_beat
     build: .
-    command: celery -A karer_web beat -l info
+    command: celery -A core beat -l info
     volumes:
       - ./:/app/
     restart: always

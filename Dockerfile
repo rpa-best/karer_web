@@ -7,3 +7,4 @@ RUN apt-get -y install libev-dev libnss3
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 COPY . /app/
+RUN python manage.py makemigrations

@@ -1,5 +1,7 @@
 from django.contrib import admin
-from karer_web.mixins import OwnQuerysetMixin
+
+from core.mixins import OwnQuerysetMixin
+
 from . import models
 
 

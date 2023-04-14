@@ -1,5 +1,6 @@
 from django import forms
-from karer_web.models import Car, Driver, Karer, Organization, Client
+
+from core.models import Car, Client, Driver, Karer, Organization
 
 
 class OrgInviteDashboardForm(forms.Form):
@@ -11,10 +12,22 @@ class OrgInviteDashboardForm(forms.Form):
         ('year', 'По годом'),
     ], label='Период')
 
-    car = forms.MultipleChoiceField(choices=[(c.id, c.number) for c in Car.objects.all()], required=False, label='Машина')
-    driver = forms.MultipleChoiceField(choices=[(c.id, c.name) for c in Driver.objects.all()], required=False, label='Водител')
-    karer = forms.MultipleChoiceField(choices=[(c.id, c.name) for c in Karer.objects.all()], required=False, label='Объект')
-    organizaton = forms.MultipleChoiceField(choices=[(c.id, c.name) for c in Organization.objects.all()], required=False, label='Организация')
+    car = forms.MultipleChoiceField(
+        choices=[(c.id, c.number) for c in Car.objects.all()],
+        required=False, label='Машина'
+    )
+    driver = forms.MultipleChoiceField(
+        choices=[(c.id, c.name) for c in Driver.objects.all()],
+        required=False, label='Водител'
+    )
+    karer = forms.MultipleChoiceField(
+        choices=[(c.id, c.name) for c in Karer.objects.all()],
+        required=False, label='Объект'
+    )
+    organizaton = forms.MultipleChoiceField(
+        choices=[(c.id, c.name) for c in Organization.objects.all()],
+        required=False, label='Организация'
+    )
 
 
 class ClientInviteDashboardForm(forms.Form):
@@ -26,8 +39,19 @@ class ClientInviteDashboardForm(forms.Form):
         ('year', 'По годом'),
     ], label='Период')
 
-    car = forms.MultipleChoiceField(choices=[(c.id, c.number) for c in Car.objects.all()], required=False, label='Машина')
-    driver = forms.MultipleChoiceField(choices=[(c.id, c.name) for c in Driver.objects.all()], required=False, label='Водител')
-    karer = forms.MultipleChoiceField(choices=[(c.id, c.name) for c in Karer.objects.all()], required=False, label='Объект')
-    client = forms.MultipleChoiceField(choices=[(c.id, c.name) for c in Client.objects.all()], required=False, label='Физ. лицо')
- 
+    car = forms.MultipleChoiceField(
+        choices=[(c.id, c.number) for c in Car.objects.all()],
+        required=False, label='Машина'
+    )
+    driver = forms.MultipleChoiceField(
+        choices=[(c.id, c.name) for c in Driver.objects.all()],
+        required=False, label='Водител'
+    )
+    karer = forms.MultipleChoiceField(
+        choices=[(c.id, c.name) for c in Karer.objects.all()],
+        required=False, label='Объект'
+    )
+    client = forms.MultipleChoiceField(
+        choices=[(c.id, c.name) for c in Client.objects.all()],
+        required=False, label='Физ. лицо'
+    )

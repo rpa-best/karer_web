@@ -1,5 +1,7 @@
-from import_export.resources import ModelResource, Field
+from import_export.resources import Field, ModelResource
+
 from . import models
+
 
 class InviteResource(ModelResource):
     id = Field('id', 'ID')

@@ -1,8 +1,10 @@
-from django.db.models.functions import Trunc
 from django.db.models import Count
-from karer_web.charts.line_chart import LineChartDashboard
-from .forms import OrgInviteDashboardForm, ClientInviteDashboardForm
-from .models import OrgInvite, ClientInvite
+from django.db.models.functions import Trunc
+
+from core.charts.line_chart import LineChartDashboard
+
+from .forms import ClientInviteDashboardForm, OrgInviteDashboardForm
+from .models import ClientInvite, OrgInvite
 
 
 class OrgInviteLineChart(LineChartDashboard):

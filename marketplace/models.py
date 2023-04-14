@@ -28,9 +28,9 @@ class Product(models.Model):
     desc = models.TextField(blank=True, null=True, verbose_name='Описание')
     category = models.ForeignKey(Category, models.PROTECT, verbose_name='Категория')
     unit = models.ForeignKey(Unit, models.PROTECT, verbose_name='Единица измерение')
-    karer = models.ForeignKey("karer_web.Karer", models.PROTECT, null=True)
+    karer = models.ForeignKey("core.Karer", models.PROTECT, null=True)
     price = models.FloatField(null=True, verbose_name='Цена')
-    
+
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'

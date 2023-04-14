@@ -1,8 +1,10 @@
 from django.contrib import admin
-from karer_web.mixins import ReadOnlyAdminModelMixin
-from .models import CarControl
+
+from core.mixins import ReadOnlyAdminModelMixin
+
+from .models import History
 
 
-@admin.register(CarControl)
-class CarControl(ReadOnlyAdminModelMixin, admin.ModelAdmin):
-    pass
+@admin.register(History)
+class HistoryAdmin(ReadOnlyAdminModelMixin, admin.ModelAdmin):
+    list_display = ["car", "date", "type", "mode"]

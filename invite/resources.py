@@ -1,5 +1,7 @@
-from import_export.resources import ModelResource, Field
+from import_export.resources import Field, ModelResource
+
 from . import models
+
 
 class InviteResource(ModelResource):
     id = Field('id', 'ID')
@@ -13,7 +15,6 @@ class InviteResource(ModelResource):
     weight = Field('weight', "Потребность (кг)")
 
 
-    
 class ClientInviteResource(InviteResource):
     client = Field('order__client', 'Физ. лицо')
 

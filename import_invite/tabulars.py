@@ -1,5 +1,5 @@
-from django.contrib import admin
 from adminsortable2.admin import SortableStackedInline
+
 from .models import OrgImportInvite
 
 
@@ -10,5 +10,5 @@ class OrgInviteTabular(SortableStackedInline):
     exclude = ['finish_at']
     readonly_fields = ['status']
 
-    def has_change_permission(self, request, obj = None) -> bool:
+    def has_change_permission(self, request, obj=None) -> bool:
         return False

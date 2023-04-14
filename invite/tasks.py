@@ -1,10 +1,12 @@
 import json
 import uuid
 from datetime import timedelta
+
 from celery import shared_task
 from django.utils import timezone
-from django_celery_beat.models import PeriodicTask, CrontabSchedule
-from karer_web.tasks import send_email
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+
+from core.tasks import send_email
 
 WAITING_CANCEL = 6
 WAITING_PAY_NOTIFICATION = 24 - WAITING_CANCEL
@@ -25,7 +27,10 @@ def _notification_before(model, ids, state):
     for instance in qs:
         subject = WAITING_PAY_NOTIFICATION_SUBJECT if instance.status == "waiting_pay" else PAYED_NOTIFICATION_SUBJECT
         message = WAITING_PAY_NOTIFICATION_TEXT if instance.status == "waiting_pay" else WAITING_PAY_NOTIFICATION_TEXT
-        send_email.delay(instance.order.user.email, subject, message.format(instance_id=instance.id, hours=WAITING_CANCEL))
+        send_email.delay(
+            instance.order.user.email, subject,
+            message.format(instance_id=instance.id, hours=WAITING_CANCEL)
+        )
         crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_CANCEL}")
         PeriodicTask.objects.create(
             name=str(uuid.uuid4()),
