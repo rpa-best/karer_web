@@ -58,3 +58,19 @@ class ClientInviteTabular(SortableStackedInline):
             kwargs={'object_id': obj.id}
         )}"""
         return format_html(f"<a href='{url}'>Открыт</a>")
+
+    @admin.display(description='Ручной режим')
+    def manual_mode(self, obj: OrgInvite):
+        url = f"""{reverse(
+            f'admin:{self.model._meta.app_label}_{self.model._meta.model_name}_manual-mode',
+            kwargs={'object_id': obj.order.id, 'invite_id': obj.id}
+        )}"""
+        return format_html(f"<a href='{url}'>Перейти в ручной режим</a>")
+
+    @admin.display(description='Восстановить заявку')
+    def recover(self, obj: OrgInvite):
+        url = f"""{reverse(
+            f'admin:{self.model._meta.app_label}_{self.model._meta.model_name}_recover',
+            kwargs={'object_id': obj.order.id, 'invite_id': obj.id}
+        )}"""
+        return format_html(f"<a href='{url}'>Восстановить</a>")

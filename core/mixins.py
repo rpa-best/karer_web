@@ -1,4 +1,8 @@
+from django.contrib import messages
 from django.contrib.admin.utils import flatten_fieldsets
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import path, reverse
 
 
 class OwnQuerysetMixin:
@@ -48,3 +52,65 @@ class ReadOnlyAdminModelMixin:
                 [field.name for field in self.opts.local_fields] +
                 [field.name for field in self.opts.local_many_to_many]
             ))
+
+
+class RecoverModeMixin:
+    recover_model = None
+
+    def get_urls(self):
+        my_urls = [
+            path('<path:object_id>/change/<path:invite_id>/recover/',
+                 self.invite_recover,
+                 name='%s_%s_recover' % self.get_recover_model_info()),
+        ]
+        return my_urls + super().get_urls()
+
+    def get_recover_model_info(self):
+        app_label = self.recover_model._meta.app_label
+        return app_label, self.recover_model._meta.model_name
+
+    def invite_recover(self, request, object_id, invite_id):
+        try:
+            invite = get_object_or_404(self.recover_model, id=invite_id)
+            if invite.status not in ["finished"]:
+                raise ValueError(f'Заявку со статусом "{dict(invite.STATUS)[invite.status]}" нелзя восстановить')
+            self.perform_invite_recover(invite)
+            messages.add_message(request, messages.constants.SUCCESS, "Заявка восстановлено")
+        except Exception as _exp:
+            messages.add_message(request, messages.constants.ERROR, str(_exp))
+        url = reverse("admin:%s_%s_change" % self.get_model_info(), kwargs={"object_id": object_id})
+        return HttpResponseRedirect(url)
+
+    def perform_invite_recover(self, invite):
+        invite.status = 'waiting_pay'
+        invite.save()
+        print(invite)
+
+
+class ManualModeMixin:
+    manual_model = None
+
+    def get_urls(self):
+        my_urls = [
+            path('<path:object_id>/change/<path:invite_id>/manual-mode/',
+                 self.invite_manual_mode,
+                 name='%s_%s_manual-mode' % self.get_manual_model_info()),
+        ]
+        return my_urls + super().get_urls()
+
+    def get_manual_model_info(self):
+        app_label = self.manual_model._meta.app_label
+        return app_label, self.manual_model._meta.model_name
+
+    def invite_manual_mode(self, request, object_id, invite_id):
+        try:
+            invite = self.manual_model.objects.get(id=invite_id)
+            self.perform_invite_manual(invite)
+            messages.add_message(request, messages.constants.INFO, "Заявка перешла на ручной режим")
+        except Exception as _exp:
+            messages.add_message(request, messages.constants.ERROR, str(_exp))
+        url = reverse("admin:%s_%s_change" % self.get_model_info(), kwargs={"object_id": object_id})
+        return HttpResponseRedirect(url)
+
+    def perform_invite_manual(self, invite):
+        pass

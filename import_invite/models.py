@@ -1,6 +1,15 @@
+import json
 import uuid
+from datetime import timedelta
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch.dispatcher import receiver
+from django.utils import timezone
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from simple_history.models import HistoricalRecords
+
+from core.tasks import WAITING_PAY_NOTIFICATION
 
 
 class BaseImport(models.Model):
@@ -57,6 +66,7 @@ class BaseImportInvite(models.Model):
 
 class OrgImportInvite(BaseImportInvite):
     order = models.ForeignKey(OrgImport, models.CASCADE, verbose_name='Импорт')
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['position']
@@ -67,3 +77,18 @@ class OrgImportInvite(BaseImportInvite):
 def get_invite(invite_id):
     invite = OrgImportInvite.objects.filter(id=invite_id).first()
     return invite
+
+
+@receiver(post_save, sender=OrgImportInvite)
+def invite_schedules(sender, instance, created, **kwargs):
+    if created:
+        model_str = '.'.join((sender._meta.app_label, sender._meta.model_name))
+        crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_PAY_NOTIFICATION}")
+        PeriodicTask.objects.create(
+            name=str(uuid.uuid4()),
+            task="notification_before",
+            kwargs=json.dumps({'ids': [str(instance.id)], 'state': str(instance.status), "model_str": model_str}),
+            start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
+            one_off=True, crontab=crontab,
+            description=f"Уведамление юр. лица {instance.id}",
+        )

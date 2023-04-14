@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 from core.charts.line_chart import LineChartDashboard
 from invite.models import ClientInvite, OrgInvite
 

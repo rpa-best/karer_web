@@ -1,10 +1,11 @@
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from django.utils import timezone
-from core.models import Karer
+
 from core.api.serializers import CarSerializer, DriverSerializer
-from marketplace.api.serializers import ProductSerializer
+from core.models import Karer
 from invite.models import ClientInvite, OrgInvite, get_invite
+from marketplace.api.serializers import ProductSerializer
 
 
 class InviteShowSerializer(serializers.Serializer):
@@ -48,7 +49,8 @@ class InviteDoneSerializer(serializers.Serializer):
             raise ValidationError({"invite_id": ["Invite not found"]})
         accept_statuses = ["payed"]
         if invite.status not in accept_statuses:
-            raise ValidationError({"invite": [f"Invite status is {invite.status}. Must be {', '.join(accept_statuses)}"]})
+            raise ValidationError({"invite": [f"Invite status is {invite.status}. "
+                                              f"Must be {', '.join(accept_statuses)}"]})
         return invite
 
     def validate(self, attrs):

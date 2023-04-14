@@ -11,9 +11,8 @@ from django.utils import timezone
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from simple_history.models import HistoricalRecords
 
+from core.tasks import WAITING_PAY_NOTIFICATION
 from import_invite.models import OrgImportInvite
-
-from .tasks import WAITING_PAY_NOTIFICATION
 
 
 class BaseOrder(models.Model):
@@ -123,28 +122,16 @@ def get_invite(invite_id):
     return invite
 
 
-@receiver(post_save, sender=OrgInvite)
-def org_invite_schedules(sender, instance, created, **kwargs):
-    if created:
-        crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_PAY_NOTIFICATION}")
-        PeriodicTask.objects.create(
-            name=str(uuid.uuid4()),
-            task="notification_before_org",
-            kwargs=json.dumps({'ids': [str(instance.id)], 'state': str(instance.status)}),
-            start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
-            one_off=True, crontab=crontab,
-            description=f"Уведамление юр. лица {instance.id}",
-        )
-
-
 @receiver(post_save, sender=ClientInvite)
-def client_invite_schedules(sender, instance, created, **kwargs):
+@receiver(post_save, sender=OrgInvite)
+def invite_schedules(sender, instance, created, **kwargs):
     if created:
+        model_str = '.'.join((sender._meta.app_label, sender._meta.model_name))
         crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_PAY_NOTIFICATION}")
         PeriodicTask.objects.create(
             name=str(uuid.uuid4()),
-            task="notification_before_client",
-            kwargs=json.dumps({'ids': [str(instance.id)], 'state': str(instance.status)}),
+            task="notification_before",
+            kwargs=json.dumps({'ids': [str(instance.id)], 'state': str(instance.status), "model_str": model_str}),
             start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
             one_off=True, crontab=crontab,
             description=f"Уведамление юр. лица {instance.id}",

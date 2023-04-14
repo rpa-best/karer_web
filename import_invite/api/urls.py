@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import InvitePlateCheck, InviteDoneView
+from .views import InviteDoneView, InvitePlateCheck
 
 urlpatterns = [
     path('check/', InvitePlateCheck.as_view()),
