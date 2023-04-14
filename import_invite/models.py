@@ -62,3 +62,8 @@ class OrgImportInvite(BaseImportInvite):
         ordering = ['position']
         verbose_name = "Заявка юр. лицо"
         verbose_name_plural = "Заявкы юр. лицо"
+
+
+def get_invite(invite_id):
+    invite = OrgImportInvite.objects.filter(id=invite_id).first()
+    return invite

@@ -116,6 +116,13 @@ class OrgInvite(BaseInvite):
         verbose_name_plural = "Заявкы юр. лицо"
 
 
+def get_invite(invite_id):
+    invite = OrgInvite.objects.filter(id=invite_id).first()
+    if not invite:
+        invite = ClientInvite.objects.filter(id=invite_id).first()
+    return invite
+
+
 @receiver(post_save, sender=OrgInvite)
 def org_invite_schedules(sender, instance, created, **kwargs):
     if created:
@@ -123,10 +130,10 @@ def org_invite_schedules(sender, instance, created, **kwargs):
         PeriodicTask.objects.create(
             name=str(uuid.uuid4()),
             task="notification_before_org",
-            kwargs=json.dumps({'ids': [str(instance.id)], 'state': 'waiting_pay'}),
+            kwargs=json.dumps({'ids': [str(instance.id)], 'state': str(instance.status)}),
             start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
             one_off=True, crontab=crontab,
-            description=f"Уведамление юр. лица {instance.id} с 'ожидание оплаты' на 'отклонена'",
+            description=f"Уведамление юр. лица {instance.id}",
         )
 
 
@@ -137,8 +144,8 @@ def client_invite_schedules(sender, instance, created, **kwargs):
         PeriodicTask.objects.create(
             name=str(uuid.uuid4()),
             task="notification_before_client",
-            kwargs=json.dumps({'ids': [str(instance.id)], 'state': 'waiting_pay'}),
+            kwargs=json.dumps({'ids': [str(instance.id)], 'state': str(instance.status)}),
             start_time=timezone.now() + timedelta(hours=WAITING_PAY_NOTIFICATION),
             one_off=True, crontab=crontab,
-            description=f"Уведамление юр. лица {instance.id} с 'ожидание оплаты' на 'отклонена'",
+            description=f"Уведамление юр. лица {instance.id}",
         )
