@@ -42,7 +42,7 @@ def _notification_before(model_str, ids, state):
         crontab, _ = CrontabSchedule.objects.get_or_create(hour=f"*/{WAITING_CANCEL}")
         PeriodicTask.objects.create(
             name=str(uuid.uuid4()),
-            task="cancel_org_invite",
+            task="cancel_invite",
             kwargs=json.dumps({'ids': [str(instance.id)], "state": state, "model_str": model_str}),
             start_time=timezone.now() + timedelta(hours=WAITING_CANCEL),
             one_off=True,

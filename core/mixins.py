@@ -8,12 +8,12 @@ from django.urls import path, reverse
 class OwnQuerysetMixin:
     def get_exclude(self, request, obj):
         exclude = super().get_exclude(request, obj) or []
+        if hasattr(self.model, 'user'):
+            return [*exclude, "user"]
         if request.user.is_superuser:
             return exclude
         if hasattr(self.model, 'karer'):
             return [*exclude, 'karer']
-        if hasattr(self.model, 'user'):
-            return [*exclude, "user"]
         return exclude
 
     def save_model(self, request, obj, form, change) -> None:
@@ -72,7 +72,7 @@ class RecoverModeMixin:
     def invite_recover(self, request, object_id, invite_id):
         try:
             invite = get_object_or_404(self.recover_model, id=invite_id)
-            if invite.status not in ["finished"]:
+            if invite.status not in ["finished", "canceled"]:
                 raise ValueError(f'Заявку со статусом "{dict(invite.STATUS)[invite.status]}" нелзя восстановить')
             self.perform_invite_recover(invite)
             messages.add_message(request, messages.constants.SUCCESS, "Заявка восстановлено")
