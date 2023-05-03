@@ -18,7 +18,7 @@ def get_app_list(context, order=True):
         except AttributeError:
             has_module_perms = request.user.has_module_perms(app_label)
 
-        if model._meta.model_name in ['orginvite', 'clientinvite']:
+        if model._meta.model_name in ['orginvite', 'clientinvite', 'orgimportinvite']:
             continue
 
         if has_module_perms:
